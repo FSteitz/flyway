@@ -27,6 +27,7 @@ public class CacheTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("SET OPTION COMPILEMODE = NOCHECK");
         jdbcTemplate.execute("DROP TABLE " + database.quote(schema.getName(), name) + " CASCADE");
     }
 
