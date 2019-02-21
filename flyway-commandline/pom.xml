@@ -89,7 +89,7 @@
         </dependency>
         <dependency>
             <groupId>com.intersys</groupId>
-            <artifactId>cachejdbc</artifactId>
+            <artifactId>cache-jdbc</artifactId>
         </dependency>
 
 

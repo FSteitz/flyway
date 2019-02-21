@@ -205,15 +205,15 @@ public class DatabaseFactory {
 
 
                 );
+            case INTERSYSTEMS_CACHE:
+                return new CacheDatabase(configuration, connection, originalAutoCommit
+
+
+
+                );
             default:
                 throw new FlywayException("Unsupported Database: " + databaseType.name());
         }
-        if(databaseProductName.startsWith("Cache")) {
-            return new CacheDatabase(configuration, connection, originalAutoCommit);
-
-        }
-
-        throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
     /**

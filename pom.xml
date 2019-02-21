@@ -140,6 +140,7 @@
         <version.mssql-jdbc>7.0.0.jre8</version.mssql-jdbc>
         <version.postgresql>42.2.5.jre6</version.postgresql>
         <version.sqlite>3.23.1</version.sqlite>
+        <version.intersyscache>2016.1.0.656</version.intersyscache>
         <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.12.0</version.equinox>
         <version.equinoxcommon>3.9.0</version.equinoxcommon>
@@ -406,8 +407,8 @@
             </dependency>
             <dependency>
                 <groupId>com.intersys</groupId>
-                <artifactId>cachejdbc</artifactId>
-                <version>2015.2</version>
+                <artifactId>cache-jdbc</artifactId>
+                <version>${version.intersyscache}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

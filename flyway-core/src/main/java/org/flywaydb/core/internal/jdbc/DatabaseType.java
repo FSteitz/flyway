@@ -101,7 +101,12 @@ public enum DatabaseType {
     /**
      * SAP HANA.
      */
-    SAPHANA(Types.VARCHAR);
+    SAPHANA(Types.VARCHAR),
+
+    /**
+     * InterSystems Caché
+     */
+    INTERSYSTEMS_CACHE(Types.VARCHAR);
 
     private final int nullType;
 

@@ -1,11 +1,26 @@
+/*
+ * Copyright 2010-2018 Boxfuse GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.flywaydb.core.internal.database.cache;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.database.Schema;
-import org.flywaydb.core.internal.database.Table;
+import org.flywaydb.core.internal.database.base.Schema;
+import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.database.sqlite.SQLiteSchema;
-import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
+import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -17,6 +32,7 @@ import java.util.stream.Stream;
 public class CacheSchema extends Schema<CacheDatabase> {
 
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
+
     /**
      * Creates a new Cache schema.
      *
@@ -57,8 +73,8 @@ public class CacheSchema extends Schema<CacheDatabase> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                        //Search for all the table names in the schema
-                        "SELECT SqlTableName from %dictionary.compiledclass where SqlSchemaName = ?", name);
+                //Search for all the table names in the schema
+                "SELECT SqlTableName from %dictionary.compiledclass where SqlSchemaName = ?", name);
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
         return tableNames.stream().map(tableName -> new CacheTable(jdbcTemplate, database, this, tableName)).toArray(Table[]::new);
     }

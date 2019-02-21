@@ -1,11 +1,26 @@
+/*
+ * Copyright 2010-2018 Boxfuse GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.flywaydb.core.internal.database.cache;
 
 import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.internal.database.Database;
-import org.flywaydb.core.internal.database.SqlScript;
-import org.flywaydb.core.internal.exception.FlywayDbUpgradeRequiredException;
-import org.flywaydb.core.internal.util.placeholder.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.database.base.Database;
+import org.flywaydb.core.internal.placeholder.PlaceholderReplacer;
+import org.flywaydb.core.internal.sqlscript.AbstractSqlStatementBuilderFactory;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilder;
+import org.flywaydb.core.internal.sqlscript.SqlStatementBuilderFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,6 +29,9 @@ import java.sql.SQLException;
  * Cache database.
  */
 public class CacheDatabase extends Database<CacheConnection> {
+
+    private static final String USER_FRIENDLY_DB_NAME = "Caché";
+    private static final String VENDOR = "InterSystems";
 
     /**
      * Creates a new instance.
@@ -31,17 +49,16 @@ public class CacheDatabase extends Database<CacheConnection> {
     }
 
     @Override
-    protected void ensureSupported() {
-        String version = majorVersion + "." + minorVersion;
-        if (majorVersion < 2015) {
-            throw new FlywayDbUpgradeRequiredException("Cache", version, "2015.2");
-        }
+    public void ensureSupported() {
+        // TODO correct version
+        ensureDatabaseIsRecentEnough(USER_FRIENDLY_DB_NAME, "9.0");
+        ensureDatabaseIsCompatibleWithFlywayEdition(VENDOR, USER_FRIENDLY_DB_NAME, "9.3");
+        recommendFlywayUpgradeIfNecessaryForMajorVersion(USER_FRIENDLY_DB_NAME, "10");
     }
 
     @Override
-    protected SqlScript doCreateSqlScript(LoadableResource sqlScriptResource,
-                                          PlaceholderReplacer placeholderReplacer, boolean mixed) {
-        return new CacheSqlScript(configuration, sqlScriptResource, mixed, placeholderReplacer);
+    protected SqlStatementBuilderFactory createSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+        return new CacheSqlStatementBuilderFactory(placeholderReplacer);
     }
 
     @Override
@@ -60,7 +77,7 @@ public class CacheDatabase extends Database<CacheConnection> {
     }
 
     @Override
-    protected boolean supportsChangingCurrentSchema() {
+    public boolean supportsChangingCurrentSchema() {
         return true;
     }
 
@@ -76,16 +93,27 @@ public class CacheDatabase extends Database<CacheConnection> {
 
     @Override
     public String doQuote(String identifier) {
-        return cacheQuote(identifier);
+        return "\"" + identifier + "\"";
     }
 
     @Override
-    public boolean catalogIsSchema() { return false; }
+    public boolean catalogIsSchema() {
+        return false;
+    }
 
     @Override
-    public boolean useSingleConnection() { return false; }
+    public boolean useSingleConnection() {
+        return false;
+    }
 
-    static String cacheQuote(String identifier) {
-        return "\"" + identifier + "\"";
+    private static class CacheSqlStatementBuilderFactory extends AbstractSqlStatementBuilderFactory {
+        private CacheSqlStatementBuilderFactory(PlaceholderReplacer placeholderReplacer) {
+            super(placeholderReplacer);
+        }
+
+        @Override
+        public SqlStatementBuilder createSqlStatementBuilder() {
+            return new CacheSqlStatementBuilder();
+        }
     }
 }
