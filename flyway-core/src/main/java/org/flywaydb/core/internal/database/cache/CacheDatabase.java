@@ -30,9 +30,6 @@ import java.sql.SQLException;
  */
 public class CacheDatabase extends Database<CacheConnection> {
 
-    private static final String USER_FRIENDLY_DB_NAME = "Caché";
-    private static final String VENDOR = "InterSystems";
-
     /**
      * Creates a new instance.
      *
@@ -50,10 +47,7 @@ public class CacheDatabase extends Database<CacheConnection> {
 
     @Override
     public void ensureSupported() {
-        // TODO correct version
-        ensureDatabaseIsRecentEnough(USER_FRIENDLY_DB_NAME, "9.0");
-        ensureDatabaseIsCompatibleWithFlywayEdition(VENDOR, USER_FRIENDLY_DB_NAME, "9.3");
-        recommendFlywayUpgradeIfNecessaryForMajorVersion(USER_FRIENDLY_DB_NAME, "10");
+        ensureDatabaseIsRecentEnough("InterSystems Caché", "2016.1");
     }
 
     @Override
@@ -63,7 +57,7 @@ public class CacheDatabase extends Database<CacheConnection> {
 
     @Override
     public String getDbName() {
-        return "Cache";
+        return "cache";
     }
 
     @Override

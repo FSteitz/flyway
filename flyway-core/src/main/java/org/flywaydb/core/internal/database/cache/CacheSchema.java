@@ -23,7 +23,7 @@ import org.flywaydb.core.internal.database.sqlite.SQLiteSchema;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 /**
@@ -46,22 +46,22 @@ public class CacheSchema extends Schema<CacheDatabase> {
 
     @Override
     protected boolean doExists() {
-        return true;
+        return true; // Schemas don't need to be created beforehand in Caché; hence a schema always "exists".
     }
 
     @Override
-    protected boolean doEmpty() {
-        return false;
+    protected boolean doEmpty() throws SQLException {
+        return findAllTableNames().isEmpty();
     }
 
     @Override
     protected void doCreate() {
-        LOG.info("Cache does not support creating schemas. Schema not created: " + name);
+        LOG.debug("Schema '" + name + "' not created - Cache does not support creating schemas");
     }
 
     @Override
     protected void doDrop() {
-        LOG.info("Cache does not support dropping schemas. Schema not dropped: " + name);
+        LOG.debug("Schema '" + name + "' not dropped - Cache does not support dropping schemas");
     }
 
     @Override
@@ -69,18 +69,20 @@ public class CacheSchema extends Schema<CacheDatabase> {
         Stream.of(allTables()).forEach(Table::drop);
     }
 
-
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                //Search for all the table names in the schema
-                "SELECT SqlTableName from %dictionary.compiledclass where SqlSchemaName = ?", name);
-        //Views and child tables are excluded as they are dropped with the parent table when using cascade.
-        return tableNames.stream().map(tableName -> new CacheTable(jdbcTemplate, database, this, tableName)).toArray(Table[]::new);
+        return findAllTableNames().stream().map(this::getTable).toArray(Table[]::new);
     }
 
     @Override
     public Table getTable(String tableName) {
         return new CacheTable(jdbcTemplate, database, this, tableName);
+    }
+
+    private Collection<String> findAllTableNames() throws SQLException {
+        return jdbcTemplate.queryForStringList(
+                "SELECT SqlTableName from %dictionary.compiledclass where SqlSchemaName = ?",
+                name
+        );
     }
 }

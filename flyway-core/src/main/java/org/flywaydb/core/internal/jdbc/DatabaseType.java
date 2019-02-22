@@ -170,6 +170,9 @@ public enum DatabaseType {
         if (databaseProductName.startsWith("Informix")) {
             return INFORMIX;
         }
+        if (databaseProductName.startsWith("Cache")) {
+            return INTERSYSTEMS_CACHE;
+        }
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
