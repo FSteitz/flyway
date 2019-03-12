@@ -47,7 +47,7 @@ public class CacheDatabase extends Database<CacheConnection> {
 
     @Override
     public void ensureSupported() {
-        ensureDatabaseIsRecentEnough("InterSystems Caché", "2016.1");
+        ensureDatabaseIsRecentEnough("InterSystems Caché", "2014.1");
     }
 
     @Override
